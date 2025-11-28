@@ -24,6 +24,11 @@ export default defineNuxtConfig({
     workers: true,
     database: true,
     databaseMigrationsDirs: ["server/database/migrations/"],
+    bindings: {
+      observability: {
+        logs: true,
+      },
+    },
   },
   nitro: {
     experimental: {
