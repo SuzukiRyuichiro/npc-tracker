@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: ["@nuxthub/core", "@nuxt/eslint", "@nuxt/ui"],
+  modules: ["@nuxthub/core", "@nuxt/eslint", "@nuxt/ui", "nuxt-mapbox"],
 
   // https://devtools.nuxt.com
   devtools: { enabled: true },
@@ -15,6 +15,9 @@ export default defineNuxtConfig({
   // https://hub.nuxt.com/docs/getting-started/installation#options
   hub: {},
   css: ["~/assets/css/main.css"],
+  mapbox: {
+    accessToken: process.env.MAPBOX_API_KEY!,
+  },
 
   // Development config
   eslint: {

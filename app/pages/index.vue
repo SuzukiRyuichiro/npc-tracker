@@ -1,20 +1,14 @@
 <template>
   <div>
-    <UProgress v-model="value" />
-    <UButtonGroup orientation="horizontal">
-      <UButton
-        color="neutral"
-        variant="subtle"
-        label="Add"
-        @click="value += 1"
-      />
-      <UButton
-        color="neutral"
-        variant="outline"
-        label="Subtract"
-        @click="value -= 1"
-      />
-    </UButtonGroup>
+    <MapboxMap
+      map-id="<MAP_ID>"
+      class="w-screen h-screen"
+      :options="{
+        style: 'mapbox://styles/mapbox/light-v11', // style URL
+        center: [-68.137343, 45.137451], // starting position
+        zoom: 5, // starting zoom
+      }"
+    />
   </div>
 </template>
 <script setup lang="ts">
