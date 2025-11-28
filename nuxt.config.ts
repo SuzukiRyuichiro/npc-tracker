@@ -22,6 +22,8 @@ export default defineNuxtConfig({
   hub: {
     blob: true,
     workers: true,
+    database: true,
+    databaseMigrationsDirs: ["server/database/migrations/"],
   },
   nitro: {
     experimental: {
