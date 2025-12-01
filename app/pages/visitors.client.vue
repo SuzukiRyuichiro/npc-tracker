@@ -14,7 +14,6 @@ const sendData = () => {
 };
 
 watch(data, (newValue) => {
-  console.log(newValue);
   messages.value.push(newValue);
 });
 </script>

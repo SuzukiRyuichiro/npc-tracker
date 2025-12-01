@@ -3,158 +3,85 @@
     map-id="map"
     class="w-screen h-screen"
     :options="{
-      style: 'mapbox://styles/mapbox/light-v11', // style URL
+      style:
+        $colorMode.value === 'dark'
+          ? 'mapbox://styles/mapbox/dark-v11'
+          : 'mapbox://styles/mapbox/standard', // style URL
       center: [139.7090146, 35.6330098], // starting position
       zoom: 10, // starting zoom
     }"
   >
     <MapboxGeolocateControl />
-    <MapboxSource
-      source-id="route-data"
-      :source="{
-        type: 'geojson',
-        data: '/test.geojson',
-      }"
-    />
   </MapboxMap>
 </template>
 <script setup lang="ts">
+import { useWebSocket } from "@vueuse/core";
 import { Marker } from "mapbox-gl";
 
-useMapbox("map", async (map) => {
-  // Fetch GeoJSON data
-  const response = await fetch("/test.geojson");
-  const geojsonData = await response.json();
+const { status, data, send, open, close } = useWebSocket("/api/location");
+const mapRef = useMapboxRef("map");
+const locationLngLat = ref([139.7090146, 35.6330098]);
+const markerRef = ref<Marker | null>(null);
 
-  // Get coordinates from the first feature (LineString)
-  const coordinates = geojsonData.features[0].geometry.coordinates;
-  const startCoord = coordinates[0];
-  const endCoord = coordinates[coordinates.length - 1];
+// Initialize marker once map is ready
+watch(mapRef, (map) => {
+  if (map && !markerRef.value) {
+    markerRef.value = new Marker()
+      .setLngLat(locationLngLat.value as [number, number])
+      .addTo(map);
+  }
+});
 
-  // Create start marker (green)
-  const startMarker = new Marker({ color: "#22c55e" })
-    .setLngLat([startCoord[0], startCoord[1]])
-    .addTo(map);
+// Animate marker when locationLngLat changes
+watch(locationLngLat, (newLngLat, oldLngLat) => {
+  if (markerRef.value && newLngLat && oldLngLat) {
+    // Smooth animation using setLngLat with duration
+    animateMarker(markerRef.value as any, oldLngLat, newLngLat, 1000); // 1 second animation
+  }
+});
 
-  // Create end marker (red)
-  const endMarker = new Marker({ color: "#ef4444" })
-    .setLngLat([endCoord[0], endCoord[1]])
-    .addTo(map);
+// Animation helper function
+function animateMarker(
+  marker: any,
+  start: number[],
+  end: number[],
+  duration: number
+) {
+  const startTime = performance.now();
 
-  map.loadImage(
-    "https://docs.mapbox.com/mapbox-gl-js/assets/pattern-dot.png",
-    (error, image) => {
-      if (error) throw error;
+  const animate = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
 
-      map.addImage("pattern-dot", image);
-      const lineBaseWidth = 14;
+    const eased =
+      progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-      map.addLayer({
-        id: "route-line",
-        type: "line",
-        source: "route-data",
-        slot: "middle",
-        layout: {
-          "line-join": "none",
-        },
-        paint: {
-          "line-pattern": "pattern-dot",
-          "line-width": [
-            "interpolate",
-            ["exponential", 2],
-            ["zoom"],
-            0,
-            lineBaseWidth * 1,
-            0.9999,
-            lineBaseWidth * 2,
-            1,
-            lineBaseWidth * 1,
-            1.9999,
-            lineBaseWidth * 2,
-            2,
-            lineBaseWidth * 1,
-            2.9999,
-            lineBaseWidth * 2,
-            3,
-            lineBaseWidth * 1,
-            3.9999,
-            lineBaseWidth * 2,
-            4,
-            lineBaseWidth * 1,
-            4.9999,
-            lineBaseWidth * 2,
-            5,
-            lineBaseWidth * 1,
-            5.9999,
-            lineBaseWidth * 2,
-            6,
-            lineBaseWidth * 1,
-            6.9999,
-            lineBaseWidth * 2,
-            7,
-            lineBaseWidth * 1,
-            7.9999,
-            lineBaseWidth * 2,
-            8,
-            lineBaseWidth * 1,
-            8.9999,
-            lineBaseWidth * 2,
-            9,
-            lineBaseWidth * 1,
-            9.9999,
-            lineBaseWidth * 2,
-            10,
-            lineBaseWidth * 1,
-            10.9999,
-            lineBaseWidth * 2,
-            11,
-            lineBaseWidth * 1,
-            11.9999,
-            lineBaseWidth * 2,
-            12,
-            lineBaseWidth * 1,
-            12.9999,
-            lineBaseWidth * 2,
-            13,
-            lineBaseWidth * 1,
-            13.9999,
-            lineBaseWidth * 2,
-            14,
-            lineBaseWidth * 1,
-            14.9999,
-            lineBaseWidth * 2,
-            15,
-            lineBaseWidth * 1,
-            15.9999,
-            lineBaseWidth * 2,
-            16,
-            lineBaseWidth * 1,
-            16.9999,
-            lineBaseWidth * 2,
-            17,
-            lineBaseWidth * 1,
-            17.9999,
-            lineBaseWidth * 2,
-            18,
-            lineBaseWidth * 1,
-            18.9999,
-            lineBaseWidth * 2,
-            19,
-            lineBaseWidth * 1,
-            19.9999,
-            lineBaseWidth * 2,
-            20,
-            lineBaseWidth * 1,
-            20.9999,
-            lineBaseWidth * 2,
-            21,
-            lineBaseWidth * 1,
-            22,
-            lineBaseWidth * 2,
-          ],
-        },
-      });
+    const lng = (start[0] ?? 0) + ((end[0] ?? 0) - (start[0] ?? 0)) * eased;
+    const lat = (start[1] ?? 0) + ((end[1] ?? 0) - (start[1] ?? 0)) * eased;
+
+    marker.setLngLat([lng, lat]);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
     }
-  );
+  };
+
+  requestAnimationFrame(animate);
+}
+
+watch(data, (newValue) => {
+  const lngLat = JSON.parse(newValue);
+  locationLngLat.value = lngLat;
+});
+
+onMounted(() => {
+  setInterval(() => {
+    locationLngLat.value = [
+      139.7090146 + Math.random() / 100,
+      35.6330098 + Math.random() / 100,
+    ];
+  }, 5000);
 });
 </script>

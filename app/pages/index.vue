@@ -1,7 +1,6 @@
 <template>
   <div>
     <USwitch v-model="upload" class="absolute top-3 left-3 z-10" />
-
     <div v-if="upload" class="w-screen h-screen grid place-items-center">
       <UFileUpload
         label="GPXファイルをアップロードしてください"
@@ -16,5 +15,5 @@
   </div>
 </template>
 <script setup lang="ts">
-const upload = ref(true);
+const upload = useState("upload", () => true);
 </script>
