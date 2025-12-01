@@ -1,7 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: ["@nuxthub/core", "@nuxt/eslint", "@nuxt/ui", "nuxt-mapbox", "@vueuse/nuxt", "@nuxtjs/color-mode"],
+  modules: [
+    "@nuxthub/core",
+    "@nuxt/eslint",
+    "@nuxt/ui",
+    "nuxt-mapbox",
+    "@vueuse/nuxt",
+    "@nuxtjs/color-mode",
+  ],
 
   // https://devtools.nuxt.com
   devtools: { enabled: true },
@@ -29,7 +36,7 @@ export default defineNuxtConfig({
       websocket: true,
     },
   },
-  css: ["~/assets/css/main.css"],
+  css: ["~/assets/css/main.css", "~/assets/css/fonts.css"],
   mapbox: {
     accessToken: process.env.MAPBOX_API_KEY!,
   },
