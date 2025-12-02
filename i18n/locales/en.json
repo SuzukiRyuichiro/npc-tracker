@@ -6,5 +6,11 @@
   },
   "meetingLocation": "Meeting Spot",
   "meetingTime": "Meeting Time",
-  "address": "United Nations University in Aoyama"
+  "address": "United Nations University in Aoyama",
+  "admin": {
+    "login": {
+      "password": "Password",
+      "login": "Login"
+    }
+  }
 }

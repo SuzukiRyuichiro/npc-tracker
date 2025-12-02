@@ -3,8 +3,10 @@
 
 @theme {
   --font-sans: "pixel", sans-serif;
+  --ui-primary: var(--color-stone-900);
 }
 
 .dark {
   --ui-bg: var(--color-stone-900);
+  --ui-primary: var(--color-neutral-50);
 }

@@ -8,6 +8,7 @@
           src="~~/assets/images/npc-logo-full.png"
           alt=""
           class="invert dark:invert-0 h-40"
+          @dblclick="router.push('/admin')"
         />
 
         <UTabs
@@ -68,8 +69,6 @@
             </nuxt-link>
           </div>
         </div>
-
-        <div class="">{{ $t("") }}</div>
       </div>
     </UContainer>
   </div>
@@ -77,6 +76,8 @@
 
 <script setup lang="ts">
 import type { tabs } from "#build/ui";
+
+const router = useRouter();
 
 const map = useState("map", () => false);
 const twitterWidget = ref();
