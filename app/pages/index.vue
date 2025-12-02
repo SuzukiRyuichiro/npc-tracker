@@ -11,7 +11,13 @@
           class="invert dark:invert-0"
         />
 
-        <UTabs color="neutral" variant="link" :content="false" :items="items" />
+        <UTabs
+          color="neutral"
+          variant="link"
+          :content="false"
+          :items="items"
+          class="mt-4"
+        />
 
         <div class="mt-10 text-center">
           <h2 class="mt-3">
@@ -26,7 +32,7 @@
             自転車の車種は問いません。 お気軽にどうぞ。
           </h2>
 
-          <div class="flex justify-center gap-3 mt-8">
+          <div class="flex justify-center gap-3 mt-10">
             <nuxt-link to="https://twitter.com/NPC_TDF">
               <UIcon
                 name="streamline-pixel:logo-social-media-twitter-circle"
