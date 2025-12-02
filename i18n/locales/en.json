@@ -10,7 +10,8 @@
   "admin": {
     "login": {
       "password": "Password",
-      "login": "Login"
+      "login": "Login",
+      "back": "Back to home"
     }
   }
 }

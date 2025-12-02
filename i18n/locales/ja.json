@@ -10,7 +10,8 @@
   "admin": {
     "login": {
       "password": "パスワード",
-      "login": "ログイン"
+      "login": "ログイン",
+      "back": "戻る"
     }
   }
 }

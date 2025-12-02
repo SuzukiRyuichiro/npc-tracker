@@ -26,6 +26,12 @@
         </UButtonGroup>
       </UFormField>
     </UForm>
+
+    <nuxt-link
+      to="/"
+      class="mt-4 underline underline-offset-4 decoration-dashed"
+      >{{ $t("admin.login.back") }}</nuxt-link
+    >
   </div>
 </template>
 
