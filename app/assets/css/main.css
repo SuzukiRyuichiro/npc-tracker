@@ -4,3 +4,7 @@
 @theme {
   --font-sans: "pixel", sans-serif;
 }
+
+.dark {
+  --ui-bg: var(--color-stone-900);
+}
