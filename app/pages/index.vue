@@ -2,13 +2,12 @@
   <div>
     <USwitch v-model="map" class="absolute bottom-3 left-3 z-10" />
     <Map v-if="map" />
-    <UContainer class="pt-30">
+    <UContainer class="md:pt-30 pt-10">
       <div class="w-full flex flex-col justify-center items-center">
         <img
           src="~~/assets/images/npc-logo-full.png"
           alt=""
-          width="100"
-          class="invert dark:invert-0"
+          class="invert dark:invert-0 h-40"
         />
 
         <UTabs
