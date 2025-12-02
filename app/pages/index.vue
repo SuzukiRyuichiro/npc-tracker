@@ -22,7 +22,7 @@
           }"
         />
 
-        <div class="mt-10 text-center">
+        <div class="sm:mt-10 text-center mt-6">
           <h2 class="mt-3">
             {{ $t("hero.subtitle1") }}
           </h2>
@@ -50,7 +50,7 @@
             </p>
           </div>
 
-          <div class="flex justify-center gap-3 mt-10">
+          <div class="flex justify-center gap-3 sm:mt-10 mt-6">
             <nuxt-link to="https://twitter.com/NPC_TDF">
               <UIcon
                 name="streamline-pixel:logo-social-media-twitter-circle"
