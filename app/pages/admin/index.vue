@@ -5,6 +5,7 @@
       <UButton
         size="sm"
         icon="streamline-pixel:interface-essential-signout-logout"
+        @click="logout"
         >ログアウト</UButton
       >
     </div>
@@ -43,9 +44,24 @@
         >保存</UButton
       >
     </UCard>
+
+    <nuxt-link
+      to="/"
+      　class="text-center underline underline-offset-4 decoration-dashed"
+      >ホームに戻る</nuxt-link
+    >
   </UContainer>
 </template>
 
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const gpxFile = ref();
+
+const logout = async () => {
+  await $fetch("/api/auth/logout", { method: "POST" });
+  await navigateTo("/");
+};
 </script>
