@@ -1,5 +1,4 @@
-import { compare } from "bcrypt";
-import { createHmac } from "crypto";
+import { compare } from "bcryptjs";
 export default defineEventHandler(async (event) => {
   const { password } = await readBody(event);
 
@@ -15,13 +14,13 @@ export default defineEventHandler(async (event) => {
       createdAt: Date.now(),
     };
 
-    const signature = createHmac("sha256", process.env.SESSION_SECRET!)
-      .update(JSON.stringify(sessionData))
-      .digest("hex");
+    const sessionDataString = JSON.stringify(sessionData);
+    const signature = await createHmacSignature(
+      sessionDataString,
+      process.env.SESSION_SECRET!
+    );
 
-    const sessionValue = `${Buffer.from(JSON.stringify(sessionData)).toString(
-      "base64"
-    )}.${signature}`;
+    const sessionValue = `${btoa(sessionDataString)}.${signature}`;
 
     setCookie(event, "admin-session", sessionValue, {
       httpOnly: true,

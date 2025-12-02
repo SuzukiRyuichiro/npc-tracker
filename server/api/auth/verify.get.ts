@@ -1,5 +1,5 @@
-export default defineEventHandler((event) => {
-  const authenticated = verifySession(event);
+export default defineEventHandler(async (event) => {
+  const authenticated = await verifySession(event);
 
   return { authenticated };
 });

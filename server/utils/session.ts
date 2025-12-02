@@ -1,7 +1,6 @@
-import { createHmac } from "crypto";
 import type { H3Event } from "h3";
 
-export function verifySession(event: H3Event): boolean {
+export async function verifySession(event: H3Event): Promise<boolean> {
   const sessionCookie = getCookie(event, "admin-session");
 
   if (!sessionCookie) {
@@ -15,13 +14,13 @@ export function verifySession(event: H3Event): boolean {
       return false;
     }
 
-    const sessionData = JSON.parse(
-      Buffer.from(dataBase64, "base64").toString()
-    );
+    const sessionDataString = atob(dataBase64);
+    const sessionData = JSON.parse(sessionDataString);
 
-    const expectedSignature = createHmac("sha256", process.env.SESSION_SECRET!)
-      .update(JSON.stringify(sessionData))
-      .digest("hex");
+    const expectedSignature = await createHmacSignature(
+      sessionDataString,
+      process.env.SESSION_SECRET!
+    );
 
     if (signature !== expectedSignature) {
       return false;

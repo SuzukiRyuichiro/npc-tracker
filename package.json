@@ -20,7 +20,7 @@
     "@nuxtjs/i18n": "10.2.1",
     "@types/bcrypt": "^6.0.0",
     "@vueuse/nuxt": "14.1.0",
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.44.7",
     "nuxt": "^3.17.5",
     "nuxt-mapbox": "1.6.4",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.76",
     "@nuxt/eslint-config": "^1.4.1",
+    "@types/bcryptjs": "^3.0.0",
     "drizzle-kit": "^0.31.7",
     "eslint": "^9.29.0",
     "mapbox-gl": "^3.16.0",
