@@ -75,8 +75,6 @@
 </template>
 
 <script setup lang="ts">
-import type { tabs } from "#build/ui";
-
 const router = useRouter();
 
 const map = useState("map", () => false);
