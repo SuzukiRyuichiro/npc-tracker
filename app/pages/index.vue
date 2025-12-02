@@ -15,22 +15,41 @@
           color="neutral"
           variant="link"
           :content="false"
+          v-model="locale"
           :items="items"
           class="mt-4"
+          :ui="{
+            indicator: 'duration-0!',
+          }"
         />
 
         <div class="mt-10 text-center">
           <h2 class="mt-3">
-            毎月第三土曜日 東京の夜を自転車で グループライドをしています。
+            {{ $t("hero.subtitle1") }}
           </h2>
           <h2 class="mt-3">
-            自動車に占領されてしまった
-            昼間の東京ストリートも夜は僕らのクルージングコースに変わる。
+            {{ $t("hero.subtitle2") }}
           </h2>
           <h2 class="mt-3">
-            ペダルを踏みしめみんなでいっしょに走りませんか？
-            自転車の車種は問いません。 お気軽にどうぞ。
+            {{ $t("hero.subtitle3") }}
           </h2>
+
+          <div class="grid gap-2 mt-5">
+            <p>
+              <UIcon name="streamline-pixel:map-navigation-pin-location-2" />
+              {{ $t("meetingLocation") }}:
+              <nuxt-link
+                to="https://maps.app.goo.gl/RU8uFATefaiTjCQC8"
+                class="underline underline-offset-4 decoration-dashed"
+                >{{ $t("address") }}</nuxt-link
+              >
+            </p>
+
+            <p>
+              <UIcon name="streamline-pixel:interface-essential-clock" />
+              {{ $t("meetingTime") }}: PM 5:30
+            </p>
+          </div>
 
           <div class="flex justify-center gap-3 mt-10">
             <nuxt-link to="https://twitter.com/NPC_TDF">
@@ -50,23 +69,29 @@
             </nuxt-link>
           </div>
         </div>
+
+        <div class="">{{ $t("") }}</div>
       </div>
     </UContainer>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { tabs } from "#build/ui";
+
 const map = useState("map", () => false);
 const twitterWidget = ref();
 
-import type { TabsItem } from "@nuxt/ui";
+const { locales, setLocale, locale: currentLocale } = useI18n();
 
-const items = ref<TabsItem[]>([
-  {
-    label: "日本語",
+const items = computed(() =>
+  locales.value.map((locale) => ({ label: locale.name, value: locale.code }))
+);
+
+const locale = computed({
+  get: () => currentLocale.value as "ja" | "en",
+  set: (newValue) => {
+    setLocale(newValue);
   },
-  {
-    label: "English",
-  },
-]);
+});
 </script>

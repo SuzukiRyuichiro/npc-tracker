@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "nuxt-mapbox",
     "@vueuse/nuxt",
     "@nuxtjs/color-mode",
+    "@nuxtjs/i18n",
   ],
 
   // https://devtools.nuxt.com
@@ -49,5 +50,13 @@ export default defineNuxtConfig({
         commaDangle: "never",
       },
     },
+  },
+
+  i18n: {
+    defaultLocale: "ja",
+    locales: [
+      { code: "ja", name: "日本語", file: "ja.json" },
+      { code: "en", name: "English", file: "en.json" },
+    ],
   },
 });
