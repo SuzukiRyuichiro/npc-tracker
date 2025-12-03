@@ -1,20 +1,49 @@
 <template>
-  <MapboxMap
-    map-id="map"
-    class="w-screen h-screen"
-    :options="{
-      style:
-        $colorMode.value === 'dark'
-          ? 'mapbox://styles/mapbox/dark-v11'
-          : 'mapbox://styles/mapbox/standard', // style URL
-      center: [139.7084775, 35.6620318], // starting position
-      zoom: 12, // starting zoom
-      language: 'ja',
-      localFontFamily: 'pixel',
-    }"
-  >
-    <MapboxGeolocateControl />
-  </MapboxMap>
+  <div>
+    <MapboxMap
+      map-id="map"
+      class="w-screen h-screen"
+      :options="{
+        style:
+          $colorMode.value === 'dark'
+            ? 'mapbox://styles/mapbox/dark-v11'
+            : 'mapbox://styles/mapbox/standard', // style URL
+        center: [139.7084775, 35.6620318], // starting position
+        zoom: 12, // starting zoom
+        language: 'ja',
+        localFontFamily: 'pixel',
+      }"
+    >
+      <MapboxGeolocateControl />
+    </MapboxMap>
+
+    <UModal class="z-30" :open="isModalOpen">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <UIcon
+            name="streamline-pixel:interface-essential-information-circle-1"
+            class="size-6"
+          />
+          <h3 class="text-lg font-semibold">{{ $t("map.noRide.title") }}</h3>
+        </div>
+      </template>
+
+      <template #body>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          {{ $t("map.noRide.description") }}
+        </p>
+      </template>
+
+      <template #footer>
+        <UButton color="neutral" variant="ghost" @click="isModalOpen = false">
+          {{ $t("map.noRide.stay") }}
+        </UButton>
+        <UButton to="/" @click="isModalOpen = false">
+          {{ $t("map.noRide.goHome") }}
+        </UButton>
+      </template>
+    </UModal>
+  </div>
 </template>
 <script setup lang="ts">
 import { useWebSocket } from "@vueuse/core";
@@ -26,18 +55,38 @@ const { status, data, send, open, close } = useWebSocket("/api/location");
 const mapRef = useMapboxRef("map");
 const locationLngLat = ref<LngLatLike | null>([139.7084775, 35.6620318]);
 const markerRef = ref<Marker | null>(null);
+const isModalOpen = ref(false);
+const isRideActive = ref(false);
 
-const { data: rideStatusData } = await useFetch("/api/rides/status");
+const { data: rideStatusData } = await useFetch("/api/rides/status", {
+  watch: false,
+});
 
-if (rideStatusData.value?.isActive) {
-  console.log("there is active ride going on!");
-} else {
-  console.log("there is no active ride going on!");
+isRideActive.value = rideStatusData.value?.isActive ?? false;
+
+if (!isRideActive.value) {
+  isModalOpen.value = true;
 }
 
-// Initialize marker once map is ready
-watch(mapRef, (map) => {
-  if (locationLngLat.value?.length == 0 || !map || markerRef.value) return;
+const checkRideStatus = async () => {
+  const { isActive } = await $fetch("/api/rides/status");
+  const wasActive = isRideActive.value;
+  isRideActive.value = isActive;
+
+  // If ride just became inactive, show modal and remove marker
+  if (wasActive && !isActive) {
+    isModalOpen.value = true;
+    removeMarker();
+  }
+};
+
+onMounted(() => {
+  setInterval(checkRideStatus, 30000); // Check every 30 seconds
+});
+
+// Create marker helper
+const createMarker = (map: any, lngLat: LngLatLike) => {
+  if (markerRef.value) return; // Already exists
 
   const el = document.createElement("div");
   const pingBackground = document.createElement("div");
@@ -50,19 +99,38 @@ watch(mapRef, (map) => {
   pingBackground.classList.add("ping", "w-full", "h-full", "rounded-full");
   el.appendChild(pingBackground);
 
-  markerRef.value = new Marker(el).setLngLat(locationLngLat.value).addTo(map);
+  markerRef.value = new Marker(el).setLngLat(lngLat).addTo(map);
+};
+
+// Remove marker helper
+const removeMarker = () => {
+  if (markerRef.value) {
+    markerRef.value.remove();
+    markerRef.value = null;
+  }
+};
+
+// Initialize marker once map is ready (only if ride is active)
+watch(mapRef, (map) => {
+  if (!map || !isRideActive.value || !locationLngLat.value) return;
+  createMarker(map, locationLngLat.value);
 });
 
-// Animate marker when locationLngLat changes
 watch(locationLngLat, (newLngLat, oldLngLat) => {
   console.log(locationLngLat, "changed");
+
+  if (!isRideActive.value) return;
+
+  if (!markerRef.value && mapRef.value && newLngLat) {
+    createMarker(mapRef.value, newLngLat);
+    return;
+  }
+
   if (markerRef.value && newLngLat && oldLngLat) {
-    // Smooth animation using setLngLat with duration
     animateMarker(markerRef.value as any, oldLngLat, newLngLat, 1000); // 1 second animation
   }
 });
 
-// Animation helper function
 const animateMarker = (
   marker: any,
   start: number[],
@@ -93,7 +161,6 @@ const animateMarker = (
   requestAnimationFrame(animate);
 };
 
-// Watch for WebSocket location updates
 watch(data, (newValue) => {
   if (newValue) {
     try {

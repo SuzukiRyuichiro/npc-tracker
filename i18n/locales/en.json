@@ -8,6 +8,14 @@
   "meetingTime": "Meeting Time",
   "address": "United Nations University in Aoyama",
   "viewLiveMap": "View Live Map",
+  "map": {
+    "noRide": {
+      "title": "No Active Ride",
+      "description": "There is currently no active ride. When a ride starts, you'll see the real-time location here.",
+      "stay": "Stay on Map",
+      "goHome": "Go Home"
+    }
+  },
   "admin": {
     "title": "Admin Panel",
     "logout": "Logout",

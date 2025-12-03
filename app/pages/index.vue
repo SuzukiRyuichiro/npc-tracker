@@ -20,6 +20,18 @@
             indicator: 'duration-0!',
           }"
         />
+        <!-- Show map button when ride is active -->
+        <div v-if="isRideActive" class="mt-10">
+          <UButton
+            to="/map"
+            icon="streamline-pixel:map-navigation-pin-location-2"
+            size="xl"
+            color="primary"
+            class="w-full justify-center animate-pulse"
+          >
+            {{ $t("viewLiveMap") }}
+          </UButton>
+        </div>
 
         <div class="sm:mt-10 text-center mt-6">
           <h2 class="mt-3">
@@ -65,19 +77,6 @@
                 class="size-8"
               ></UIcon>
             </nuxt-link>
-          </div>
-
-          <!-- Show map button when ride is active -->
-          <div v-if="isRideActive" class="mt-10">
-            <UButton
-              to="/map"
-              icon="streamline-pixel:map-navigation-pin-location-2"
-              size="xl"
-              color="primary"
-              class="w-full justify-center animate-pulse"
-            >
-              {{ $t("viewLiveMap") }}
-            </UButton>
           </div>
         </div>
       </div>
