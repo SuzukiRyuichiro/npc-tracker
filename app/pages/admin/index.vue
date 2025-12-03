@@ -79,8 +79,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useWebSocket } from "@vueuse/core";
-
 definePageMeta({
   middleware: ["auth"],
 });
@@ -88,12 +86,9 @@ definePageMeta({
 const gpxFile = ref();
 const isRideActive = ref(false);
 const isLoading = ref(false);
-const watchId = ref<number | null>(null);
 
-// WebSocket connection for broadcasting location
-const { status, send } = useWebSocket("/api/location", {
-  autoReconnect: true,
-});
+// Use global location tracking composable
+const { startTracking, stopTracking, isTracking } = useLocationTracking();
 
 // Check ride status on mount
 onMounted(async () => {
@@ -104,8 +99,9 @@ const checkRideStatus = async () => {
   const { isActive } = await $fetch("/api/rides/status");
   isRideActive.value = isActive;
 
-  if (isActive) {
-    startLocationTracking();
+  // If ride is active and not already tracking, start tracking
+  if (isActive && !isTracking.value) {
+    startTracking();
   }
 };
 
@@ -114,7 +110,7 @@ const startRide = async () => {
   try {
     await $fetch("/api/rides/start", { method: "POST" });
     isRideActive.value = true;
-    startLocationTracking();
+    startTracking();
   } catch (error) {
     console.error("Failed to start ride:", error);
   } finally {
@@ -127,7 +123,7 @@ const stopRide = async () => {
   try {
     await $fetch("/api/rides/stop", { method: "POST" });
     isRideActive.value = false;
-    stopLocationTracking();
+    stopTracking();
   } catch (error) {
     console.error("Failed to stop ride:", error);
   } finally {
@@ -135,44 +131,9 @@ const stopRide = async () => {
   }
 };
 
-const startLocationTracking = () => {
-  if (!navigator.geolocation) {
-    console.error("Geolocation not supported");
-    return;
-  }
-
-  watchId.value = navigator.geolocation.watchPosition(
-    (position) => {
-      const location = [position.coords.longitude, position.coords.latitude];
-      if (status.value === "OPEN") {
-        send(JSON.stringify(location));
-      }
-    },
-    (error) => {
-      console.error("Geolocation error:", error);
-    },
-    {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      timeout: 5000,
-    }
-  );
-};
-
-const stopLocationTracking = () => {
-  if (watchId.value !== null) {
-    navigator.geolocation.clearWatch(watchId.value);
-    watchId.value = null;
-  }
-};
-
 const logout = async () => {
-  stopLocationTracking();
+  stopTracking();
   await $fetch("/api/auth/logout", { method: "POST" });
   await navigateTo("/");
 };
-
-onUnmounted(() => {
-  stopLocationTracking();
-});
 </script>
