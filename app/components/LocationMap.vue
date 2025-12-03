@@ -18,23 +18,19 @@
     </MapboxMap>
 
     <!-- Wake Lock Control -->
-    <div class="absolute top-4 right-4 z-20 flex flex-col gap-2 items-end">
+    <div class="absolute bottom-4 right-4 z-20">
       <UButton
         v-if="wakeLock.isSupported"
         :color="wakeLock.isActive ? 'primary' : 'neutral'"
         :icon="wakeLock.isActive ? 'i-lucide-sun' : 'i-lucide-moon'"
         @click="toggleWakeLock"
       >
-        {{ wakeLock.isActive ? $t('map.wakeLock.active') : $t('map.wakeLock.inactive') }}
+        {{
+          wakeLock.isActive
+            ? $t("map.wakeLock.active")
+            : $t("map.wakeLock.inactive")
+        }}
       </UButton>
-
-      <!-- Visibility Warning -->
-      <div
-        v-if="pageVisibility.isHidden"
-        class="bg-yellow-500/90 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
-      >
-        {{ $t('map.visibility.backgrounded') }}
-      </div>
     </div>
 
     <UModal class="z-30" :open="isModalOpen">
@@ -80,7 +76,6 @@ const isRideActive = ref(false);
 
 // Wake Lock integration
 const wakeLock = useWakeLock();
-const pageVisibility = usePageVisibility();
 
 const toggleWakeLock = async () => {
   if (wakeLock.isActive.value) {
@@ -89,14 +84,6 @@ const toggleWakeLock = async () => {
     await wakeLock.request();
   }
 };
-
-// Auto re-request wake lock when page becomes visible again (if it was active before)
-watch(pageVisibility.isVisible, (visible) => {
-  if (visible && !wakeLock.isActive.value && wakeLock.isSupported.value) {
-    // Optionally auto-reacquire wake lock
-    // wakeLock.request()
-  }
-});
 
 const { data: rideStatusData } = await useFetch("/api/rides/status", {
   watch: false,
