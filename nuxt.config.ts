@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "@nuxtjs/color-mode",
     "@nuxtjs/i18n",
+    "@vite-pwa/nuxt",
   ],
 
   // https://devtools.nuxt.com
@@ -59,4 +60,79 @@ export default defineNuxtConfig({
       { code: "en", name: "English", file: "en.json" },
     ],
   },
+
+  // PWA Configuration
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'NPC Tracker',
+      short_name: 'NPCTracker',
+      description: 'Real-time location tracking application',
+      theme_color: '#1c1917', // stone-900
+      background_color: '#1c1917', // stone-900
+      display: 'standalone',
+      start_url: '/',
+      icons: [
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ]
+    },
+    workbox: {
+      navigateFallback: '/',
+      cleanupOutdatedCaches: true,
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/api\.mapbox\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'mapbox-tiles-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /^https:\/\/.*\.tiles\.mapbox\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'mapbox-vector-tiles-cache',
+            expiration: {
+              maxEntries: 200,
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            }
+          }
+        }
+      ]
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module'
+    }
+  }
 });
