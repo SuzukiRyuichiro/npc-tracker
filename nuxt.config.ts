@@ -63,76 +63,76 @@ export default defineNuxtConfig({
 
   // PWA Configuration
   pwa: {
-    registerType: 'autoUpdate',
+    registerType: "autoUpdate",
     manifest: {
-      name: 'NPC Tracker',
-      short_name: 'NPCTracker',
-      description: 'Real-time location tracking application',
-      theme_color: '#1c1917', // stone-900
-      background_color: '#1c1917', // stone-900
-      display: 'standalone',
-      start_url: '/',
+      name: "NPC Tracker",
+      short_name: "NPCTracker",
+      description: "Real-time location tracking application",
+      theme_color: "#1c1917", // stone-900
+      background_color: "#1c1917", // stone-900
+      display: "standalone",
+      start_url: "/",
       icons: [
         {
-          src: '/pwa-192x192.png',
-          sizes: '192x192',
-          type: 'image/png',
-          purpose: 'any'
+          src: "/pwa-192x192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "any",
         },
         {
-          src: '/pwa-512x512.png',
-          sizes: '512x512',
-          type: 'image/png',
-          purpose: 'any'
+          src: "/pwa-512x512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "any",
         },
         {
-          src: '/pwa-192x192.png',
-          sizes: '192x192',
-          type: 'image/png',
-          purpose: 'maskable'
+          src: "/pwa-192x192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "maskable",
         },
         {
-          src: '/pwa-512x512.png',
-          sizes: '512x512',
-          type: 'image/png',
-          purpose: 'maskable'
-        }
-      ]
+          src: "/pwa-512x512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "maskable",
+        },
+      ],
     },
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: "/",
       cleanupOutdatedCaches: true,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/api\.mapbox\.com\/.*/i,
-          handler: 'CacheFirst',
+          handler: "CacheFirst",
           options: {
-            cacheName: 'mapbox-tiles-cache',
+            cacheName: "mapbox-tiles-cache",
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
             },
             cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
+              statuses: [0, 200],
+            },
+          },
         },
         {
           urlPattern: /^https:\/\/.*\.tiles\.mapbox\.com\/.*/i,
-          handler: 'CacheFirst',
+          handler: "CacheFirst",
           options: {
-            cacheName: 'mapbox-vector-tiles-cache',
+            cacheName: "mapbox-vector-tiles-cache",
             expiration: {
               maxEntries: 200,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-            }
-          }
-        }
-      ]
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+            },
+          },
+        },
+      ],
     },
     devOptions: {
       enabled: true,
-      type: 'module'
-    }
-  }
+      type: "module",
+    },
+  },
 });
