@@ -53,7 +53,7 @@ import npcLogoUrl from "~/assets/images/npc-logo.jpg";
 
 const { status, data, send, open, close } = useWebSocket("/api/location");
 const mapRef = useMapboxRef("map");
-const locationLngLat = ref<LngLatLike | null>([139.7084775, 35.6620318]);
+const locationLngLat = ref<LngLatLike | null>();
 const markerRef = ref<Marker | null>(null);
 const isModalOpen = ref(false);
 const isRideActive = ref(false);
@@ -80,8 +80,17 @@ const checkRideStatus = async () => {
   }
 };
 
+let intervalId: ReturnType<typeof setInterval> | null = null;
+
 onMounted(() => {
-  setInterval(checkRideStatus, 30000); // Check every 30 seconds
+  intervalId = setInterval(checkRideStatus, 30000); // Check every 30 seconds
+});
+
+onUnmounted(() => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
 });
 
 // Create marker helper
@@ -162,6 +171,7 @@ const animateMarker = (
 };
 
 watch(data, (newValue) => {
+  console.log(newValue);
   if (newValue) {
     try {
       const lngLat = JSON.parse(newValue);
