@@ -97,6 +97,7 @@ The lockfile is `bun.lock` and use bun to build.
 
 - Strict mode enabled
 - Separate tsconfig for server (`server/tsconfig.json`)
+- **Import Aliases**: Use `~~/` for imports from project root (e.g., `~~/server/database/schema`)
 
 ## Important Patterns
 

@@ -1,36 +1,61 @@
 <template>
   <UContainer class="grid gap-5 py-10">
     <div class="flex items-center gap-4">
-      <h1 class="text-2xl">管理者画面</h1>
+      <h1 class="text-2xl">{{ $t("admin.title") }}</h1>
       <UButton
         size="sm"
         icon="streamline-pixel:interface-essential-signout-logout"
         @click="logout"
-        >ログアウト</UButton
+        >{{ $t("admin.logout") }}</UButton
       >
     </div>
 
     <UCard variant="outline">
-      <h3 class="text-2xl">ライドを開始</h3>
-      <p class="text-muted">ライドを開始して位置情報の共有を有効にする</p>
+      <h3 class="text-2xl">{{ $t("admin.ride.title") }}</h3>
+      <p class="text-muted">{{ $t("admin.ride.description") }}</p>
+
+      <div v-if="isRideActive" class="mt-4 space-y-4">
+        <div class="p-4 bg-green-100 dark:bg-green-900 rounded-lg">
+          <p class="text-sm font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
+            <UIcon name="streamline-pixel:map-navigation-pin-location-2" />
+            {{ $t("admin.ride.active") }}
+          </p>
+          <p class="text-xs text-green-600 dark:text-green-300 mt-1">
+            {{ $t("admin.ride.sharingLocation") }}
+          </p>
+        </div>
+
+        <UButton
+          icon="streamline-pixel:interface-essential-stop"
+          size="xl"
+          color="red"
+          class="w-full justify-center"
+          :loading="isLoading"
+          @click="stopRide"
+          >{{ $t("admin.ride.stop") }}</UButton
+        >
+      </div>
 
       <UButton
+        v-else
         icon="streamline-pixel:map-navigation-compass-direction"
         size="xl"
         class="w-full justify-center mt-4"
-        >ライドを開始</UButton
+        :loading="isLoading"
+        @click="startRide"
+        >{{ $t("admin.ride.start") }}</UButton
       >
     </UCard>
 
     <UCard variant="outline">
-      <h3 class="text-2xl">ルートをアップロード</h3>
+      <h3 class="text-2xl">{{ $t("admin.route.title") }}</h3>
       <p class="text-muted">
-        次回のライドのルートをアップロードして、マップに表示する
+        {{ $t("admin.route.description") }}
       </p>
 
       <UFileUpload
-        label="GPXファイル"
-        description="StravaやGarminからGPXを出力してアップロードしてください"
+        :label="$t('admin.route.fileLabel')"
+        :description="$t('admin.route.fileDescription')"
         accept=".gpx"
         class="w-full min-h-32 mt-4"
         v-model="gpxFile"
@@ -41,27 +66,113 @@
         size="xl"
         :disabled="!gpxFile"
         class="w-full justify-center mt-4"
-        >保存</UButton
+        >{{ $t("admin.route.save") }}</UButton
       >
     </UCard>
 
     <nuxt-link
       to="/"
       　class="text-center underline underline-offset-4 decoration-dashed"
-      >ホームに戻る</nuxt-link
+      >{{ $t("admin.backToHome") }}</nuxt-link
     >
   </UContainer>
 </template>
 
 <script lang="ts" setup>
+import { useWebSocket } from "@vueuse/core";
+
 definePageMeta({
   middleware: ["auth"],
 });
 
 const gpxFile = ref();
+const isRideActive = ref(false);
+const isLoading = ref(false);
+const watchId = ref<number | null>(null);
+
+// WebSocket connection for broadcasting location
+const { status, send } = useWebSocket("/api/location", {
+  autoReconnect: true,
+});
+
+// Check ride status on mount
+onMounted(async () => {
+  await checkRideStatus();
+});
+
+const checkRideStatus = async () => {
+  const { isActive } = await $fetch("/api/rides/status");
+  isRideActive.value = isActive;
+
+  if (isActive) {
+    startLocationTracking();
+  }
+};
+
+const startRide = async () => {
+  isLoading.value = true;
+  try {
+    await $fetch("/api/rides/start", { method: "POST" });
+    isRideActive.value = true;
+    startLocationTracking();
+  } catch (error) {
+    console.error("Failed to start ride:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const stopRide = async () => {
+  isLoading.value = true;
+  try {
+    await $fetch("/api/rides/stop", { method: "POST" });
+    isRideActive.value = false;
+    stopLocationTracking();
+  } catch (error) {
+    console.error("Failed to stop ride:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const startLocationTracking = () => {
+  if (!navigator.geolocation) {
+    console.error("Geolocation not supported");
+    return;
+  }
+
+  watchId.value = navigator.geolocation.watchPosition(
+    (position) => {
+      const location = [position.coords.longitude, position.coords.latitude];
+      if (status.value === "OPEN") {
+        send(JSON.stringify(location));
+      }
+    },
+    (error) => {
+      console.error("Geolocation error:", error);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 5000,
+    }
+  );
+};
+
+const stopLocationTracking = () => {
+  if (watchId.value !== null) {
+    navigator.geolocation.clearWatch(watchId.value);
+    watchId.value = null;
+  }
+};
 
 const logout = async () => {
+  stopLocationTracking();
   await $fetch("/api/auth/logout", { method: "POST" });
   await navigateTo("/");
 };
+
+onUnmounted(() => {
+  stopLocationTracking();
+});
 </script>

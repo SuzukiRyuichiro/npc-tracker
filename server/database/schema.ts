@@ -6,3 +6,10 @@ export const posts = sqliteTable("posts", {
   content: text("content"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
+
+export const rides = sqliteTable("rides", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  startedAt: integer("started_at", { mode: "timestamp" }).notNull(),
+  endedAt: integer("ended_at", { mode: "timestamp" }),
+});

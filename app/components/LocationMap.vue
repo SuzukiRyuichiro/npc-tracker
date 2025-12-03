@@ -7,8 +7,8 @@
         $colorMode.value === 'dark'
           ? 'mapbox://styles/mapbox/dark-v11'
           : 'mapbox://styles/mapbox/standard', // style URL
-      center: [139.7090146, 35.6330098], // starting position
-      zoom: 10, // starting zoom
+      center: [139.7084775, 35.6620318], // starting position
+      zoom: 12, // starting zoom
       language: 'ja',
       localFontFamily: 'pixel',
     }"
@@ -19,41 +19,43 @@
 <script setup lang="ts">
 import { useWebSocket } from "@vueuse/core";
 import { Marker } from "mapbox-gl";
+import type { LngLatLike } from "mapbox-gl";
 import npcLogoUrl from "~/assets/images/npc-logo.jpg";
 
 const { status, data, send, open, close } = useWebSocket("/api/location");
 const mapRef = useMapboxRef("map");
-const locationLngLat = ref([139.7090146, 35.6330098]);
+const locationLngLat = ref<LngLatLike | null>([139.7084775, 35.6620318]);
 const markerRef = ref<Marker | null>(null);
+
+const { data: rideStatusData } = await useFetch("/api/rides/status");
+
+if (rideStatusData.value?.isActive) {
+  console.log("there is active ride going on!");
+} else {
+  console.log("there is no active ride going on!");
+}
 
 // Initialize marker once map is ready
 watch(mapRef, (map) => {
-  if (map && !markerRef.value) {
-    const el = document.createElement("div");
-    const pingBackground = document.createElement("div");
-    el.className = "marker";
-    el.style.backgroundImage = `url(${npcLogoUrl})`;
-    el.classList.add(
-      "rounded-full",
-      "border",
-      "dark:border-black",
-      "w-8",
-      "h-8"
-    );
-    el.style.backgroundSize = "100%";
-    el.tabIndex = 0;
+  if (locationLngLat.value?.length == 0 || !map || markerRef.value) return;
 
-    pingBackground.classList.add("ping", "w-full", "h-full", "rounded-full");
-    el.appendChild(pingBackground);
+  const el = document.createElement("div");
+  const pingBackground = document.createElement("div");
+  el.className = "marker";
+  el.style.backgroundImage = `url(${npcLogoUrl})`;
+  el.classList.add("rounded-full", "border", "dark:border-black", "w-8", "h-8");
+  el.style.backgroundSize = "100%";
+  el.tabIndex = 0;
 
-    markerRef.value = new Marker(el)
-      .setLngLat(locationLngLat.value as [number, number])
-      .addTo(map);
-  }
+  pingBackground.classList.add("ping", "w-full", "h-full", "rounded-full");
+  el.appendChild(pingBackground);
+
+  markerRef.value = new Marker(el).setLngLat(locationLngLat.value).addTo(map);
 });
 
 // Animate marker when locationLngLat changes
 watch(locationLngLat, (newLngLat, oldLngLat) => {
+  console.log(locationLngLat, "changed");
   if (markerRef.value && newLngLat && oldLngLat) {
     // Smooth animation using setLngLat with duration
     animateMarker(markerRef.value as any, oldLngLat, newLngLat, 1000); // 1 second animation
@@ -91,18 +93,16 @@ const animateMarker = (
   requestAnimationFrame(animate);
 };
 
-onMounted(() => {
-  setInterval(() => {
-    locationLngLat.value = [
-      139.7090146 + Math.random() / 100,
-      35.6330098 + Math.random() / 100,
-    ];
-  }, 5000);
-});
-
+// Watch for WebSocket location updates
 watch(data, (newValue) => {
-  const lngLat = JSON.parse(newValue);
-  locationLngLat.value = lngLat;
+  if (newValue) {
+    try {
+      const lngLat = JSON.parse(newValue);
+      locationLngLat.value = lngLat;
+    } catch (error) {
+      console.error("Failed to parse location data:", error);
+    }
+  }
 });
 </script>
 

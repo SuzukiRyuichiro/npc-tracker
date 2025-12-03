@@ -7,7 +7,26 @@
   "meetingLocation": "集合場所",
   "meetingTime": "集合時間",
   "address": "国連大学",
+  "viewLiveMap": "ライブマップを見る",
   "admin": {
+    "title": "管理者画面",
+    "logout": "ログアウト",
+    "backToHome": "ホームに戻る",
+    "ride": {
+      "title": "ライドを開始",
+      "description": "ライドを開始して位置情報の共有を有効にする",
+      "start": "ライドを開始",
+      "stop": "ライドを終了",
+      "active": "ライドが進行中です",
+      "sharingLocation": "位置情報を共有しています（5時間後に自動終了）"
+    },
+    "route": {
+      "title": "ルートをアップロード",
+      "description": "次回のライドのルートをアップロードして、マップに表示する",
+      "fileLabel": "GPXファイル",
+      "fileDescription": "StravaやGarminからGPXを出力してアップロードしてください",
+      "save": "保存"
+    },
     "login": {
       "password": "パスワード",
       "login": "ログイン",

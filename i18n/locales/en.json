@@ -7,7 +7,26 @@
   "meetingLocation": "Meeting Spot",
   "meetingTime": "Meeting Time",
   "address": "United Nations University in Aoyama",
+  "viewLiveMap": "View Live Map",
   "admin": {
+    "title": "Admin Panel",
+    "logout": "Logout",
+    "backToHome": "Back to Home",
+    "ride": {
+      "title": "Start Ride",
+      "description": "Start a ride and enable location sharing",
+      "start": "Start Ride",
+      "stop": "Stop Ride",
+      "active": "Ride is in progress",
+      "sharingLocation": "Sharing location (auto-expires in 5 hours)"
+    },
+    "route": {
+      "title": "Upload Route",
+      "description": "Upload your next ride route to display on the map",
+      "fileLabel": "GPX File",
+      "fileDescription": "Export and upload GPX from Strava or Garmin",
+      "save": "Save"
+    },
     "login": {
       "password": "Password",
       "login": "Login",

@@ -1,7 +1,5 @@
 <template>
   <div>
-    <USwitch v-model="map" class="absolute bottom-3 left-3 z-10" />
-    <Map v-if="map" />
     <UContainer class="md:pt-30 pt-10">
       <div class="w-full flex flex-col justify-center items-center">
         <img
@@ -68,6 +66,19 @@
               ></UIcon>
             </nuxt-link>
           </div>
+
+          <!-- Show map button when ride is active -->
+          <div v-if="isRideActive" class="mt-10">
+            <UButton
+              to="/map"
+              icon="streamline-pixel:map-navigation-pin-location-2"
+              size="xl"
+              color="primary"
+              class="w-full justify-center animate-pulse"
+            >
+              {{ $t("viewLiveMap") }}
+            </UButton>
+          </div>
         </div>
       </div>
     </UContainer>
@@ -76,9 +87,7 @@
 
 <script setup lang="ts">
 const router = useRouter();
-
-const map = useState("map", () => false);
-const twitterWidget = ref();
+const isRideActive = ref(false);
 
 const { locales, setLocale, locale: currentLocale } = useI18n();
 
@@ -91,5 +100,21 @@ const locale = computed({
   set: (newValue) => {
     setLocale(newValue);
   },
+});
+
+// Check ride status on mount and periodically
+const checkRideStatus = async () => {
+  try {
+    const { isActive } = await $fetch("/api/rides/status");
+    isRideActive.value = isActive;
+  } catch (error) {
+    console.error("Failed to check ride status:", error);
+  }
+};
+
+onMounted(() => {
+  checkRideStatus();
+  // Check every 30 seconds
+  setInterval(checkRideStatus, 30000);
 });
 </script>
