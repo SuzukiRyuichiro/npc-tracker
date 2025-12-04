@@ -14,6 +14,13 @@
       "description": "There is currently no active ride. When a ride starts, you'll see the real-time location here.",
       "stay": "Stay on Map",
       "goHome": "Go Home"
+    },
+    "wakeLock": {
+      "active": "Screen Awake",
+      "inactive": "Keep Screen On"
+    },
+    "visibility": {
+      "backgrounded": "Page in background - tracking may pause"
     }
   },
   "admin": {

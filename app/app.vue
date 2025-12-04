@@ -1,4 +1,5 @@
 <template>
+  <NuxtPwaManifest />
   <UApp>
     <NuxtRouteAnnouncer />
     <NuxtLoadingIndicator />
