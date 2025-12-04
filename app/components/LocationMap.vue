@@ -17,22 +17,6 @@
       <MapboxGeolocateControl />
     </MapboxMap>
 
-    <!-- Wake Lock Control -->
-    <div class="absolute bottom-4 right-4 z-20">
-      <UButton
-        v-if="wakeLock.isSupported"
-        :color="wakeLock.isActive ? 'primary' : 'neutral'"
-        :icon="wakeLock.isActive ? 'i-lucide-sun' : 'i-lucide-moon'"
-        @click="toggleWakeLock"
-      >
-        {{
-          wakeLock.isActive
-            ? $t("map.wakeLock.active")
-            : $t("map.wakeLock.inactive")
-        }}
-      </UButton>
-    </div>
-
     <UModal class="z-30" :open="isModalOpen">
       <template #header>
         <div class="flex items-center gap-3">
@@ -73,17 +57,6 @@ const locationLngLat = ref<LngLatLike | null>();
 const markerRef = ref<Marker | null>(null);
 const isModalOpen = ref(false);
 const isRideActive = ref(false);
-
-// Wake Lock integration
-const wakeLock = useWakeLock();
-
-const toggleWakeLock = async () => {
-  if (wakeLock.isActive.value) {
-    await wakeLock.release();
-  } else {
-    await wakeLock.request();
-  }
-};
 
 const { data: rideStatusData } = await useFetch("/api/rides/status", {
   watch: false,
